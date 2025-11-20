@@ -10,18 +10,90 @@ struct Producto {
     int cantidad;
 };
 
-// ------ PROTOTIPOS ------
-void registrarProductos(Producto arr[], int tam);
-void mostrarProductos(Producto arr[], int tam);
-int buscarPorID(Producto arr[], int tam, int id);
-int buscarPorNombre(Producto arr[], int tam, string nombre);
-void ordenarPorPrecio(Producto arr[], int tam);
-void ordenarPorCantidad(Producto arr[], int tam);
-void modificarCantidad(Producto *p, int nuevaCantidad);
+// Prototipos
+void registrarProductos(Producto arr[], int n);
+void mostrarProductos(Producto arr[], int n);
+int buscarPorID(Producto arr[], int n, int id);
+int buscarPorNombre(Producto arr[], int n, string nombre);
+void ordenarPorPrecio(Producto arr[], int n);
+void ordenarPorCantidad(Producto arr[], int n);
+void modificarCantidad(Producto *p, int nuevaCant);
 
-// ------ FUNCIONES ------
-void registrarProductos(Producto arr[], int tam) {
-    for (int i = 0; i < tam; i++) {
+int main() {
+    const int N = 10;
+    Producto inventario[N];
+
+    registrarProductos(inventario, N);
+
+    int opcion;
+
+    do {
+        cout << "\n===== MENU DE INVENTARIO =====\n";
+        cout << "1. Mostrar productos\n";
+        cout << "2. Buscar por ID\n";
+        cout << "3. Buscar por nombre\n";
+        cout << "4. Ordenar por precio (Burbuja)\n";
+        cout << "5. Ordenar por cantidad (Seleccion)\n";
+        cout << "6. Modificar cantidad (punteros)\n";
+        cout << "0. Salir\n";
+        cout << "Opcion: ";
+        cin >> opcion;
+
+        try {
+            if (opcion == 1) {
+                mostrarProductos(inventario, N);
+            }
+            else if (opcion == 2) {
+                int id;
+                cout << "Ingrese ID: ";
+                cin >> id;
+
+                int index = buscarPorID(inventario, N, id);
+                cout << "Producto encontrado: " << inventario[index].nombre << endl;
+            }
+            else if (opcion == 3) {
+                string nombre;
+                cout << "Ingrese nombre: ";
+                cin.ignore();
+                getline(cin, nombre);
+
+                int index = buscarPorNombre(inventario, N, nombre);
+                cout << "Producto encontrado: ID " << inventario[index].id << endl;
+            }
+            else if (opcion == 4) {
+                ordenarPorPrecio(inventario, N);
+                cout << "Productos ordenados por precio.\n";
+            }
+            else if (opcion == 5) {
+                ordenarPorCantidad(inventario, N);
+                cout << "Productos ordenados por cantidad.\n";
+            }
+            else if (opcion == 6) {
+                int id, nuevaCant;
+                cout << "ID del producto: ";
+                cin >> id;
+
+                int index = buscarPorID(inventario, N, id);
+                cout << "Nueva cantidad: ";
+                cin >> nuevaCant;
+
+                modificarCantidad(&inventario[index], nuevaCant);
+                cout << "Cantidad modificada con éxito.\n";
+            }
+        }
+        catch (exception &e) {
+            cout << "\n[EXCEPCION] " << e.what() << endl;
+        }
+
+    } while (opcion != 0);
+
+    return 0;
+}
+
+// Registrar los productos
+void registrarProductos(Producto arr[], int n) {
+    cout << "\n=== REGISTRO DE 10 PRODUCTOS ===\n";
+    for (int i = 0; i < n; i++) {
         cout << "\nProducto " << i + 1 << ":\n";
         cout << "ID: ";
         cin >> arr[i].id;
@@ -35,9 +107,10 @@ void registrarProductos(Producto arr[], int tam) {
     }
 }
 
-void mostrarProductos(Producto arr[], int tam) {
-    cout << "\n--- LISTA DE PRODUCTOS ---\n";
-    for (int i = 0; i < tam; i++) {
+// Mostrar productos
+void mostrarProductos(Producto arr[], int n) {
+    cout << "\n=== LISTA DE PRODUCTOS ===\n";
+    for (int i = 0; i < n; i++) {
         cout << "ID: " << arr[i].id
              << " | Nombre: " << arr[i].nombre
              << " | Precio: $" << arr[i].precio
@@ -45,113 +118,47 @@ void mostrarProductos(Producto arr[], int tam) {
     }
 }
 
-int buscarPorID(Producto arr[], int tam, int id) {
-    for (int i = 0; i < tam; i++) {
-        if (arr[i].id == id) {
+// Buscar por ID
+int buscarPorID(Producto arr[], int n, int id) {
+    for (int i = 0; i < n; i++) {
+        if (arr[i].id == id)
             return i;
-        }
     }
-    throw runtime_error("ERROR: No se encontró el producto con ese ID.");
+    throw runtime_error("No se encontro el producto con ese ID.");
 }
 
-int buscarPorNombre(Producto arr[], int tam, string nombre) {
-    for (int i = 0; i < tam; i++) {
-        if (arr[i].nombre == nombre) {
+// Buscar por nombre
+int buscarPorNombre(Producto arr[], int n, string nombre) {
+    for (int i = 0; i < n; i++) {
+        if (arr[i].nombre == nombre)
             return i;
-        }
     }
-    throw runtime_error("ERROR: No se encontró el producto con ese nombre.");
+    throw runtime_error("No se encontro el producto con ese nombre.");
 }
 
-void ordenarPorPrecio(Producto arr[], int tam) {
-    for (int i = 0; i < tam - 1; i++) {
-        for (int j = 0; j < tam - i - 1; j++) {
-            if (arr[j].precio > arr[j + 1].precio) {
+// Ordenamiento burbuja por precio
+void ordenarPorPrecio(Producto arr[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - 1 - i; j++) {
+            if (arr[j].precio > arr[j + 1].precio)
                 swap(arr[j], arr[j + 1]);
-            }
         }
     }
 }
 
-void ordenarPorCantidad(Producto arr[], int tam) {
-    for (int i = 0; i < tam - 1; i++) {
+// Ordenamiento selección por cantidad
+void ordenarPorCantidad(Producto arr[], int n) {
+    for (int i = 0; i < n - 1; i++) {
         int minIndex = i;
-        for (int j = i + 1; j < tam; j++) {
-            if (arr[j].cantidad < arr[minIndex].cantidad) {
+        for (int j = i + 1; j < n; j++) {
+            if (arr[j].cantidad < arr[minIndex].cantidad)
                 minIndex = j;
-            }
         }
         swap(arr[i], arr[minIndex]);
     }
 }
 
-void modificarCantidad(Producto *p, int nuevaCantidad) {
-    p->cantidad = nuevaCantidad;
-}
-
-// ------ MENÚ ------
-int main() {
-    const int TAM = 10;
-    Producto inventario[TAM];
-
-    registrarProductos(inventario, TAM);
-
-    int opcion;
-    do {
-        cout << "\n===== MENU INVENTARIO =====\n";
-        cout << "1. Mostrar productos\n";
-        cout << "2. Buscar por ID\n";
-        cout << "3. Buscar por nombre\n";
-        cout << "4. Ordenar por precio (burbuja)\n";
-        cout << "5. Ordenar por cantidad (selección)\n";
-        cout << "6. Modificar inventario usando punteros\n";
-        cout << "0. Salir\n";
-        cout << "Elige una opción: ";
-        cin >> opcion;
-
-        try {
-            if (opcion == 1) {
-                mostrarProductos(inventario, TAM);
-            }
-            else if (opcion == 2) {
-                int id;
-                cout << "ID a buscar: ";
-                cin >> id;
-                int index = buscarPorID(inventario, TAM, id);
-                cout << "Producto encontrado: " << inventario[index].nombre << endl;
-            }
-            else if (opcion == 3) {
-                string nombre;
-                cout << "Nombre a buscar: ";
-                cin.ignore();
-                getline(cin, nombre);
-                int index = buscarPorNombre(inventario, TAM, nombre);
-                cout << "Producto encontrado: " << inventario[index].id << endl;
-            }
-            else if (opcion == 4) {
-                ordenarPorPrecio(inventario, TAM);
-                cout << "Ordenado por precio.\n";
-            }
-            else if (opcion == 5) {
-                ordenarPorCantidad(inventario, TAM);
-                cout << "Ordenado por cantidad.\n";
-            }
-            else if (opcion == 6) {
-                int id, nuevaCant;
-                cout << "ID del producto: ";
-                cin >> id;
-                int index = buscarPorID(inventario, TAM, id);
-                cout << "Nueva cantidad: ";
-                cin >> nuevaCant;
-                modificarCantidad(&inventario[index], nuevaCant);
-                cout << "Cantidad actualizada.\n";
-            }
-        }
-        catch (exception &e) {
-            cout << e.what() << endl;
-        }
-
-    } while (opcion != 0);
-
-    return 0;
+// Modificar cantidad usando punteros
+void modificarCantidad(Producto *p, int nuevaCant) {
+    p->cantidad = nuevaCant;
 }
